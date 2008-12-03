@@ -1,0 +1,6 @@
+deliciouscopy is a utility to repost Delicious bookmarks taken from a user's inbox.
+It works by only allowing bookmarks from other people in that user's network.
+
+Settings are set in settings.py.
+
+Use: crontab!
