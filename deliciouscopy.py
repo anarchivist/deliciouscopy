@@ -19,7 +19,7 @@
 import md5
 import os
 import sys
-import time
+from time import sleep, strftime
 import feedparser
 import pydelicious
 from simplejson import loads as json_load
@@ -32,7 +32,7 @@ class DeliciousCopy(object):
     Based upon Michael Noll's deliciousmonitor.py:
     http://www.michael-noll.com/wiki/Del.icio.us_Python_API#deliciousmonitor.py
     """
-    def __init__(self, username, password, key, logfile, verbose=True):
+    def __init__(self, username, password, key, logfile, verbose=False):
         self.inbox = pydelicious.dlcs_feed('user_inbox', format='rss',
                         username=username, key=key)
         self.api = pydelicious.DeliciousAPI(username, password)
@@ -82,11 +82,12 @@ class DeliciousCopy(object):
         for index, entry in enumerate(self.inbox.entries):
             url = entry.link
             urlmd5 = md5.new(url).hexdigest()
-            if entry.author in self.posters:           
-                logfh.write("[LOG] %s Processing entry #%s: '%s'\n" % \
-                            (time.strftime("%Y-%m-%d %H:%M:%S"), index + 1, url))
+            if entry.author in self.posters:
+                if self.verbose:
+                    logfh.write("[LOG] %s Processing entry #%s: '%s'\n" % \
+                        (strftime("%Y-%m-%d %H:%M:%S"), index + 1, url))
                 try:
-                    time.sleep(1) # be nice and wait 1 sec between connects 
+                    sleep(1) # be nice and wait 1 sec between connects 
                     urlinfo = json_load(pydelicious.dlcs_feed('urlinfo',
                                 urlmd5=urlmd5))
                     if urlinfo:
@@ -98,16 +99,18 @@ class DeliciousCopy(object):
                     tagstr = 'via:%s ' % entry.author + \
                         ' '.join([tag.replace(' ','_') for tag in top_tags]) 
                     self.api.posts_add(url, title, tags=tagstr.strip())
-                    logfh.write("[LOG] %s Saved %s\n" % \
-                        (time.strftime("%Y-%m-%d %H:%M:%S"), url))
+                    if self.verbose:
+                        logfh.write("[LOG] %s Saved %s\n" % \
+                            (strftime("%Y-%m-%d %H:%M:%S"), url))
                 except KeyError:
                     pass
                 except pydelicious.DeliciousItemExistsError:
-                    logfh.write("[LOG] %s %s already added\n" % \
-                        (time.strftime("%Y-%m-%d %H:%M:%S"), url))
+                    if self.verbose:
+                        logfh.write("[LOG] %s %s already added\n" % \
+                            (strftime("%Y-%m-%d %H:%M:%S"), url))
                 except:
                     logfh.write("[LOG] %s ERROR: %s\n" % \
-                        (time.strftime("%Y-%m-%d %H:%M:%S"), sys.exc_info()[0]))
+                        (strftime("%Y-%m-%d %H:%M:%S"), sys.exc_info()[0]))
                     # clean up
                     logfh.close()
                     raise
