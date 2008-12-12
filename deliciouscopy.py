@@ -51,11 +51,10 @@ class DeliciousCopy(object):
             try:
                 # read in previous log data for resuming
                 logfh = open(self.logfile, 'r')
-                # remove leading and trailing whitespace if any (incl. newlines)
-                self.urls = [line.strip() for line in logfh.readlines()]
+                logfh.readline()
                 logfh.close()
                 if self.verbose:
-                    print "done"
+                    print "OK"
             except IOError:
                 # most probably, the log file does not exist (yet)
                 if self.verbose:
