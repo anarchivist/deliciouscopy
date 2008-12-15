@@ -114,8 +114,9 @@ class DeliciousCopy(object):
                     logfh.close()
                     raise
             else:
-                logfh.write("[LOG] ERROR: %s not authorized, not saving %s\n" %\
-                    (entry.author, url))
+                logfh.write("[LOG] %s ERROR: %s not in network-aborting %s\n" % :\
+                    (strftime("%Y-%m-%d %H:%M:%S"), entry.author, url))
+                
         # clean up
         logfh.close()
 
